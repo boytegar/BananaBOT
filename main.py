@@ -19,7 +19,7 @@ def load_credentials():
 def main():
     init(autoreset=True)
     delay = random.randint(28800, 28988)
-    print = """
+    prints = """
     =========== t.me/sansxgroup ===========
 
     Credit to : https://github.com/Shyzg
@@ -27,9 +27,11 @@ def main():
 
 
 """
+    ban = Banana()
+    print(prints)
     while True:
         queries = load_credentials()
-        ban = Banana()
+        
         start_time = time.time()
         for index, query in enumerate(queries):
             token = ban.login(query=query)
@@ -54,7 +56,7 @@ def main():
         total = delay - (end_time-start_time)
         hours, remainder = divmod(total, 3600)
         minutes, seconds = divmod(remainder, 60)
-        print(f"{Fore.YELLOW + Style.BRIGHT}[ {int(hours)} Hours {int(minutes)} Minutes {int(seconds)} Seconds Remaining To Process All Account ]{Style.RESET_ALL}", end="\r", flush=True)
+        print(f"{Fore.YELLOW + Style.BRIGHT}[ {round(hours)} Hours {round(minutes)} Minutes {round(seconds)} Seconds Remaining To Process All Account ]{Style.RESET_ALL}", end="\r", flush=True)
         time.sleep(total)
 
         print()
