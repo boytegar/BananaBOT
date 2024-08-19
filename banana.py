@@ -89,7 +89,7 @@ class Banana:
 
             elapsed_time_minutes = (now - last_countdown_start_time).total_seconds() / 60
             remaining_time_minutes = max(countdown_interval_minutes - elapsed_time_minutes, 0)
-            if remaining_time_minutes > 0 or data['data']['countdown_end'] == False:
+            if remaining_time_minutes > 0 and data['data']['countdown_end'] == False:
                 hours, remainder = divmod(remaining_time_minutes * 60, 3600)
                 minutes, seconds = divmod(remainder, 60)
                 print_timestamp(f"{Fore.BLUE + Style.BRIGHT}[ Claim Your Banana In {int(hours)} Hours {int(minutes)} Minutes {int(seconds)} Seconds ]{Style.RESET_ALL}")
@@ -97,9 +97,16 @@ class Banana:
                 claim_lottery = self.claim_lottery(token=token, lottery_type=1)
                 if claim_lottery['msg'] == "Success":
                     print_timestamp(f"{Fore.GREEN + Style.BRIGHT}[ Lottery Claimed 🍌 ]{Style.RESET_ALL}")
+                    speedup_count = get_user['data']['speedup_count']
+                    if speedup_count > 0:
+                        speedup = self.do_speedup(token=token)
+                        if speedup['msg'] == "Success":
+                            print_timestamp(f"{Fore.GREEN + Style.BRIGHT}[ Speedup Applied ]")
                 else:
                     print_timestamp(f"{Fore.RED + Style.BRIGHT}[ {claim_lottery['msg']} ]{Style.RESET_ALL}")
             time.sleep(2)
+           
+
             get_lottery = self.get_user_info(token=token)
             harvest = get_lottery['data']['lottery_info']['remain_lottery_count']
             while harvest > 0:
@@ -117,6 +124,19 @@ class Banana:
         payload = {
             'clickCount': click_count
         }
+        try:
+            response = requests.post(url=url, headers=self.headers, json=payload)
+            response.raise_for_status()
+            return response.json()
+        except (Exception, requests.JSONDecodeError, requests.RequestException) as e:
+            return print_timestamp(f"{Fore.RED + Style.BRIGHT}[ {str(e)} ]{Style.RESET_ALL}")
+
+    def do_speedup(self, token: str):
+        url = 'https://interface.carv.io/banana/do_speedup'
+        self.headers.update({
+            'Authorization': token
+        })
+        payload = {}
         try:
             response = requests.post(url=url, headers=self.headers, json=payload)
             response.raise_for_status()
@@ -307,10 +327,15 @@ class Banana:
                 # Skip the achievement process for 'bind' quests
                 if 'bind' in quest_name.lower():
                     if not is_achieved:
-                        print_timestamp(f"{Fore.YELLOW}Skipping Quest, Please do by Yourself")
+                        print_timestamp(f"{Fore.YELLOW}Skipping Quest")
                         time.sleep(1)  # Sleep for 1 second
                         continue
-                
+                if 'premium' in quest_name.lower():
+                    if not is_achieved:
+                        print_timestamp(f"{Fore.YELLOW}Skipping Quest")
+                        time.sleep(1)  # Sleep for 1 second
+                        continue
+
                 # Achieve quests if not achieved
                 if not is_achieved:
                     # Automatically achieve the quest without prompting

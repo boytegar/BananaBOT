@@ -18,7 +18,7 @@ def load_credentials():
 
 def main():
     init(autoreset=True)
-    delay = random.randint(28800, 28988)
+    delay = random.randint(14400, 14550)
     prints = """
     =========== t.me/sansxgroup ===========
 
