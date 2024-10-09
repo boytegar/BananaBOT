@@ -10,7 +10,7 @@ def load_credentials():
             queries = [line.strip() for line in f.readlines()]
         return queries
     except FileNotFoundError:
-        print("File query_id.txt tidak ditemukan.")
+        print("File query.txt tidak ditemukan.")
         return [  ]
     except Exception as e:
         print("Terjadi kesalahan saat memuat token:", str(e))
