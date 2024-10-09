@@ -22,10 +22,6 @@ def main():
     prints = """
     =========== t.me/sansxgroup ===========
 
-    Credit to : https://github.com/Shyzg
-    Rework by : https://github.com/boytegar
-
-
 """
     ban = Banana()
     print(prints)
@@ -33,6 +29,8 @@ def main():
         queries = load_credentials()
         
         start_time = time.time()
+        assets = 0
+        peels = 0
         for index, query in enumerate(queries):
             token = ban.login(query=query)
             time.sleep(2)
@@ -44,6 +42,8 @@ def main():
                 f"{Fore.WHITE + Style.BRIGHT} | {Style.RESET_ALL}"
                 f"{Fore.GREEN + Style.BRIGHT}[ USDT {get_user['data']['usdt']} 🤑 ]{Style.RESET_ALL}"
             )
+            assets += get_user['data']['usdt']
+            peels += get_user['data']['peel']
             time.sleep(2)
             ban.clear_quest(token=token)
             time.sleep(2)
@@ -56,9 +56,9 @@ def main():
         total = delay - (end_time-start_time)
         hours, remainder = divmod(total, 3600)
         minutes, seconds = divmod(remainder, 60)
+        print_timestamp(f"[ Total Assets : {assets} USDT | {peels} Peels ]")
         print(f"{Fore.YELLOW + Style.BRIGHT}[ {round(hours)} Hours {round(minutes)} Minutes {round(seconds)} Seconds Remaining To Process All Account ]{Style.RESET_ALL}", end="\r", flush=True)
         time.sleep(total)
-
         print()
 
 

@@ -4,3 +4,5 @@ venv
 .DS_Store
 query.txt
 query.txt
+query_bak.txt
+query.txt
