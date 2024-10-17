@@ -2,3 +2,5 @@ colorama==0.4.6
 fake-useragent==1.5.1
 pytz==2024.1
 Requests==2.32.3
+cloudscraper
+pycryptodome
