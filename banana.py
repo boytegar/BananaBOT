@@ -40,7 +40,7 @@ def make_request(method, url, headers, json=None, data=None):
                 return None
             retry_count += 1
         elif response.status_code >= 400:
-            print_timestamp(f"Status Code: {response.status_code} | Request Failed")
+            print_timestamp(f"Status Code: {response.status_code} | {response.text}")
             return None
         elif response.status_code >= 200:
             return response.json()
@@ -62,6 +62,7 @@ class Banana:
             'Sec-Fetch-Site': 'same-site',
             'User-Agent': 'Mozilla/5.0 (Linux; Android 12; Pixel 4 XL) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.73 Mobile Safari/537.36',
             'X-App-ID': 'carv',
+            'x-interceptor-id': "994daea3cbe0d2aa80ea5a36ec9d7005a1670fbbac0c9eb5fb2c596d09932242f23d416e9885dcd0230c3ba2f8abc9ee"
         }
     
     def pad(self, s):
@@ -417,9 +418,6 @@ class Banana:
 
     def clear_quest(self, token):
         # Fetch quest list
-            self.headers.update({
-            'Authorization': token
-            })
             # Extract and print quest names and claim statuses
             data_quest = self.get_quest(token)
             data = data_quest.get('data')
