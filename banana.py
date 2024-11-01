@@ -62,7 +62,7 @@ class Banana:
             'Sec-Fetch-Site': 'same-site',
             'User-Agent': 'Mozilla/5.0 (Linux; Android 12; Pixel 4 XL) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.73 Mobile Safari/537.36',
             'X-App-ID': 'carv',
-            'x-interceptor-id': "994daea3cbe0d2aa80ea5a36ec9d7005a1670fbbac0c9eb5fb2c596d09932242f23d416e9885dcd0230c3ba2f8abc9ee"
+            'x-interceptor-id': "fa20a88184f92cf9a8ebb0674c1638f7"
         }
     
     def pad(self, s):
@@ -254,7 +254,7 @@ class Banana:
 
     def do_lottery(self, token: str):
         url = 'https://interface.carv.io/banana/do_lottery'
-        timestamp = str(int(time.time() * 1000))
+        timestamp = str(int(time.process_time() * 1000))
         encrypted_timestamp = self.encrypt_timestamp(timestamp, "1,1,0")
         headers = {
             **self.headers,
@@ -462,6 +462,10 @@ class Banana:
                         print_timestamp(f"{Fore.YELLOW}Skipping Quest")
                         continue
                 if 'telgather' in quest_name.lower():
+                    if not is_achieved:
+                        print_timestamp(f"{Fore.YELLOW}Skipping Quest")
+                        continue
+                if 'evm' in quest_name.lower():
                     if not is_achieved:
                         print_timestamp(f"{Fore.YELLOW}Skipping Quest")
                         continue
