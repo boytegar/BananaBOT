@@ -45,8 +45,14 @@ def make_request(method, url, headers, json=None, data=None):
         elif response.status_code >= 200:
             return response.json()
 
+
+
 class Banana:
     def __init__(self):
+        file_path = 'config.json'
+        with open(file_path, 'r') as file:
+            data = json.load(file)
+        intercept_value = data.get('intercept')
         self.headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json, text/plain, */*',
@@ -62,7 +68,7 @@ class Banana:
             'Sec-Fetch-Site': 'same-site',
             'User-Agent': 'Mozilla/5.0 (Linux; Android 12; Pixel 4 XL) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.73 Mobile Safari/537.36',
             'X-App-ID': 'carv',
-            'x-interceptor-id': "fa20a88184f92cf9a8ebb0674c1638f7"
+            'x-interceptor-id': f"{intercept_value}"
         }
     
     def pad(self, s):
@@ -111,6 +117,7 @@ class Banana:
 
     def get_user_info(self, token: str):
         url = 'https://interface.carv.io/banana/get_user_info'
+        
         headers = {
             **self.headers,
             'authorization' : token
@@ -127,6 +134,7 @@ class Banana:
             **self.headers,
             'authorization' : token
         }
+
         try:
             get_user = self.get_user_info(token=token)
             response = make_request('get', url, headers=headers)
