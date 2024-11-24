@@ -9,6 +9,8 @@ import time
 import cloudscraper
 import base64
 import hashlib
+
+from agent import generate_random_user_agent
 requests = cloudscraper.create_scraper()
 
 def print_timestamp(message, timezone='Asia/Jakarta'):
@@ -54,23 +56,44 @@ class Banana:
             data = json.load(file)
         intercept_value = data.get('intercept')
         self.headers = {
-            'Content-Type': 'application/json',
             'Accept': 'application/json, text/plain, */*',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'en-US,en;q=0.9',
+            'Connection': 'keep-alive',
+            'Content-Type': 'application/json',
             'Origin': 'https://banana.carv.io',
             'Referer': 'https://banana.carv.io/',
-            'Sec-CH-UA': '"Not A;Brand";v="99", "Android";v="12"',
-            'Sec-CH-UA-Mobile': '?1',
-            'Sec-CH-UA-Platform': '"Android"',
-            'Sec-Fetch-Dest': 'empty',
-            'Sec-Fetch-Mode': 'cors',
-            'Sec-Fetch-Site': 'same-site',
-            'User-Agent': 'Mozilla/5.0 (Linux; Android 12; Pixel 4 XL) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.73 Mobile Safari/537.36',
-            'X-App-ID': 'carv',
-            'x-interceptor-id': f"{intercept_value}"
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'priority': 'u=1, i',
+            'sec-fetch-site': 'same-site',
+            'User-Agent': generate_random_user_agent(),
+            'x-app-id': 'carv'
         }
     
+    def pads(self, s):
+        BS = 16
+        return s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
+
+    def SA(self, e=None):
+        if e is None:
+            e = int(time.time() * 1000)
+
+        def encrypt(t, n):
+            n = str(n).zfill(16)[:16]
+            n = n.encode('utf-8')
+            t = str(t).encode('utf-8')
+            cipher = AES.new(n, AES.MODE_CBC, iv=n)
+            padded = self.pads(t.decode('utf-8'))
+            encrypted = cipher.encrypt(padded.encode('utf-8'))
+            hex_str = ''.join([format(b, '02x') for b in encrypted])
+            return hex_str
+
+        wA = "https://interface.carv.io"
+        xA = "EWbnkc7qHBtenQee"
+
+        result = encrypt(str(e), xA)
+        # print(result)
+        return result
+
     def pad(self, s):
         block_size = 16
         padding = block_size - len(s.encode('utf-8')) % block_size
@@ -101,9 +124,11 @@ class Banana:
 
 
     def login(self, query):
+        x_interceptor_id = self.SA()
         url = 'https://interface.carv.io/banana/login'
         headers = {
-            **self.headers
+            **self.headers,
+            "X-Interceptor-Id": x_interceptor_id
         }
         while True:
             payload = {
@@ -117,10 +142,11 @@ class Banana:
 
     def get_user_info(self, token: str):
         url = 'https://interface.carv.io/banana/get_user_info'
-        
+        x_interceptor_id = self.SA()
         headers = {
             **self.headers,
-            'authorization' : token
+            'authorization' : token,
+            "X-Interceptor-Id": x_interceptor_id
         }
         try:
             response = make_request('get', url, headers=headers)
@@ -130,9 +156,11 @@ class Banana:
 
     def get_lottery_info(self, token: str):
         url = 'https://interface.carv.io/banana/get_lottery_info'
+        x_interceptor_id = self.SA()
         headers = {
             **self.headers,
-            'authorization' : token
+            'authorization' : token,
+            "X-Interceptor-Id": x_interceptor_id
         }
 
         try:
@@ -219,9 +247,11 @@ class Banana:
 
     def do_click(self, token: str, click_count: int):
         url = 'https://interface.carv.io/banana/do_click'
+        x_interceptor_id = self.SA()
         headers = {
             **self.headers,
-            'authorization' : token
+            'authorization' : token,
+            "X-Interceptor-Id": x_interceptor_id
         }
         payload = {
             'clickCount': click_count
@@ -234,9 +264,11 @@ class Banana:
 
     def do_speedup(self, token: str):
         url = 'https://interface.carv.io/banana/do_speedup'
+        x_interceptor_id = self.SA()
         headers = {
             **self.headers,
-            'authorization' : token
+            'authorization' : token,
+            "X-Interceptor-Id": x_interceptor_id
         }
         payload = {}
         try:
@@ -247,9 +279,11 @@ class Banana:
 
     def claim_lottery(self, token: str, lottery_type: int):
         url = 'https://interface.carv.io/banana/claim_lottery'
+        x_interceptor_id = self.SA()
         headers = {
             **self.headers,
-            'authorization' : token
+            'authorization' : token,
+            "X-Interceptor-Id": x_interceptor_id
         }
         payload = {
             'claimLotteryType': lottery_type
@@ -264,10 +298,12 @@ class Banana:
         url = 'https://interface.carv.io/banana/do_lottery'
         timestamp = str(int(time.process_time() * 1000))
         encrypted_timestamp = self.encrypt_timestamp(timestamp, "1,1,0")
+        x_interceptor_id = self.SA()
         headers = {
             **self.headers,
             'authorization' : token,
-            "Request-Time": encrypted_timestamp
+            "Request-Time": encrypted_timestamp,
+            "X-Interceptor-Id": x_interceptor_id
         }
         payload = {}
 
@@ -291,9 +327,11 @@ class Banana:
 
     def get_banana_list(self, token: str):
         url = 'https://interface.carv.io/banana/get_banana_list/v2?page_num=1&page_size=15'
+        x_interceptor_id = self.SA()
         headers = {
             **self.headers,
-            'authorization' : token
+            'authorization' : token,
+            "X-Interceptor-Id": x_interceptor_id
         }
         try:
             get_user = self.get_user_info(token=token)
@@ -346,9 +384,11 @@ class Banana:
 
     def do_equip(self, token: str, banana_id: int):
         url = 'https://interface.carv.io/banana/do_equip'
+        x_interceptor_id = self.SA()
         headers = {
             **self.headers,
-            'authorization' : token
+            'authorization' : token,
+            "X-Interceptor-Id": x_interceptor_id
         }
         payload = {
             'bananaId': banana_id
@@ -361,9 +401,11 @@ class Banana:
 
     def do_sell(self, token: str, banana_id: int, sell_count: int):
         url = 'https://interface.carv.io/banana/do_sell'
+        x_interceptor_id = self.SA()
         headers = {
             **self.headers,
-            'authorization' : token
+            'authorization' : token,
+            "X-Interceptor-Id": x_interceptor_id
         }
         payload = {
             'bananaId': banana_id,
@@ -377,9 +419,11 @@ class Banana:
 
     def achieve_quest(self, quest_id, token):
         url = f'https://interface.carv.io/banana/achieve_quest'
+        x_interceptor_id = self.SA()
         headers = {
             **self.headers,
-            'authorization' : token
+            'authorization' : token,
+            "X-Interceptor-Id": x_interceptor_id
         }
         payload = {"quest_id": quest_id}
         response = make_request('post', url, headers=headers, json=payload)
@@ -387,9 +431,11 @@ class Banana:
     
     def claim_quest(self, quest_id, token):
         url = f'https://interface.carv.io/banana/claim_quest'
+        x_interceptor_id = self.SA()
         headers = {
             **self.headers,
-            'authorization' : token
+            'authorization' : token,
+            "X-Interceptor-Id": x_interceptor_id
         }
         payload = {"quest_id": quest_id}
         response = make_request('post', url, headers=headers, json=payload)
@@ -397,9 +443,11 @@ class Banana:
 
     def claim_quest_lottery(self, token):
         url = 'https://interface.carv.io/banana/claim_quest_lottery'
+        x_interceptor_id = self.SA()
         headers = {
             **self.headers,
-            'authorization' : token
+            'authorization' : token,
+            "X-Interceptor-Id": x_interceptor_id
         }
         payload = {}
         response = make_request('post', url, headers=headers, json=payload)
@@ -407,18 +455,22 @@ class Banana:
     
     def get_quest(self, token):
         url = f'https://interface.carv.io/banana/get_quest_list/v2?page_num=1&page_size=15'
+        x_interceptor_id = self.SA()
         headers = {
             **self.headers,
-            'authorization' : token
+            'authorization' : token,
+            "X-Interceptor-Id": x_interceptor_id
         }
         response = make_request('get', url, headers=headers)
         return response
 
     def claim_ads(self, token, type):
         url = 'https://interface.carv.io/banana/claim_ads_income'
+        x_interceptor_id = self.SA()
         headers = {
             **self.headers,
-            'authorization' : token
+            'authorization' : token,
+            "X-Interceptor-Id": x_interceptor_id
         }
         payload = {'type':type}
         response = make_request('post', url, headers=headers, json=payload)
@@ -474,6 +526,14 @@ class Banana:
                         print_timestamp(f"{Fore.YELLOW}Skipping Quest")
                         continue
                 if 'evm' in quest_name.lower():
+                    if not is_achieved:
+                        print_timestamp(f"{Fore.YELLOW}Skipping Quest")
+                        continue
+                if 'pass' in quest_name.lower():
+                    if not is_achieved:
+                        print_timestamp(f"{Fore.YELLOW}Skipping Quest")
+                        continue
+                if 'celebration' in quest_name.lower():
                     if not is_achieved:
                         print_timestamp(f"{Fore.YELLOW}Skipping Quest")
                         continue
